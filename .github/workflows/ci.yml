@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # tree-notes has no code yet, so for now CI just verifies that the
+      # documentation we ship is well-formed. As real code lands, the
+      # language toolchain steps (build + test) belong here.
+      - name: Verify required files exist
+        run: |
+          set -e
+          for f in README.md docs/ROADMAP.md; do
+            if [ ! -s "$f" ]; then
+              echo "Required file missing or empty: $f" >&2
+              exit 1
+            fi
+            echo "OK: $f"
+          done
+
+      - name: Verify README has a Prior art section
+        run: |
+          grep -q "## Prior art" README.md
+          echo "OK: Prior art section present"
